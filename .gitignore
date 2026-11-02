@@ -1,0 +1,18 @@
+# Virtual environments
+.venv/
+.venv-*/
+
+# Python cache
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Editor and system files
+.vscode/
+.DS_Store
+
+# Temporary files
+*.log
+
+# Benchmark results
+results/

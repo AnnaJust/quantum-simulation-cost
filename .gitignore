@@ -13,6 +13,3 @@ __pycache__/
 
 # Temporary files
 *.log
-
-# Benchmark results
-results/

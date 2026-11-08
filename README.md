@@ -44,11 +44,11 @@ Hardware, software and experiment settings are saved to `results/benchmark_*_met
 
 ## Limitations
 
-- CPU runs use one thread, while GPU runs use the whole GPU, so CPU/GPU results compare typical usage rather than equal hardware resources.
-- Qrisp does not keep a dense $2^n$ statevector during simulation; Bell and GHZ states have few non-zero amplitudes, which favours it.
-- All circuits use only H and CNOT (Clifford gates), so a stabilizer simulator could simulate them in polynomial time; the exponential cost comes from the statevector representation.
-- Below about 20 qubits, RAM measurements are dominated by framework and allocator overhead rather than by the statevector.
-- GPU memory is not measured, because NVML readings under WSL2 are unreliable.
+- **CPU vs. GPU is not an equal comparison:** the CPU used a single core, the GPU was used in full.
+- **Qrisp has it easier:** Bell and GHZ states are almost all zeros, and Qrisp stores only the non-zero amplitudes, while the other packages store all $2^n$.
+- **These circuits could be simulated much faster:** they use only H and CNOT gates, which special (stabilizer) simulators handle quickly; the exponential cost comes from storing the full statevector.
+- **RAM below ~20 qubits shows mostly the package itself:** importing a package takes 300–450 MiB, while the statevector is still tiny.
+- **GPU memory was not measured:** the readings available under WSL2 were not reliable.
 
 ## Running the benchmark
 
@@ -56,15 +56,6 @@ The project uses three separate Python environments: `.venv-qiskit` (Qiskit Aer,
 
 ```bash
 uv pip freeze --python .venv-qiskit/bin/python > results/qiskit-lock.txt
-```
-
-Check that each environment simulates the circuits correctly:
-
-```bash
-.venv-qiskit/bin/python -m pytest tests
-.venv-qrisp/bin/python -m pytest tests
-.venv-cudaq/bin/python -m pytest tests
-RUN_GPU_TESTS=1 .venv-cudaq/bin/python -m pytest tests
 ```
 
 Run the benchmark from the project root:
@@ -81,11 +72,11 @@ Results are saved to `results/benchmark_*.csv`, together with plots (`_time` as 
 
 ## Results
 
-The full statevector requires $2^n$ complex amplitudes, resulting in exponential memory growth. `_growth.csv` reports how many times the simulation time grows per added qubit for $n \ge 20$; a factor close to 2 means the time follows the statevector size.
+The full statevector has $2^n$ numbers, so every extra qubit doubles the memory needed. `_growth.csv` shows how many times the simulation time grows per added qubit (fit for $n \ge 20$); a value close to 2 means the time grows together with the statevector.
 
-Main findings (run `results/benchmark_20261108_134801.csv`, AMD Ryzen 9 9950X3D, NVIDIA RTX 5090):
+Main findings (run `results/benchmark_20261108_175941.csv`, AMD Ryzen 9 9950X3D, NVIDIA RTX 5090; all 720 runs passed the fidelity check):
 
-- Dense statevector simulation on the CPU grows by 2.1–2.2× per added qubit; memory grows with the statevector size.
-- At 26 qubits the same circuit takes 0.3 s (Qrisp), 4–6 s (Qiskit Aer) or 300 s (CUDA-Q `qpp-cpu`) on one CPU thread.
-- The GPU is slower for small circuits and becomes faster from about 12–16 qubits; at 26 qubits CUDA-Q on the GPU is 8–17× faster than Qiskit Aer on the CPU.
-- Single precision helps only when the whole pipeline uses it: Qiskit Aer computes in complex64 but returns a complex128 vector.
+- **Each qubit roughly doubles the time, but only for larger circuits:** from about 16 qubits on, the time on the CPU grows 2.1–2.2× per added qubit and memory grows with the statevector; below that, fixed overheads dominate.
+- **The package matters a lot:** with 26 qubits on one CPU core, the same circuit takes 0.3–0.5 s in Qrisp, 4.5–6.2 s in Qiskit Aer and about 300 s in CUDA-Q (`qpp-cpu`), i.e. two orders of magnitude between dense simulators and almost three with Qrisp.
+- **The GPU pays off only for larger circuits:** it is slower for small ones and faster from about 12 qubits (CUDA-Q) or 16 qubits (Qiskit Aer); at 26 qubits CUDA-Q on the GPU is 7–12× faster than Qiskit Aer on the CPU in double precision and 17–35× in single precision.
+- **Lower precision does not always help:** Qiskit Aer computes in complex64 but returns complex128, so it gains no speed on the CPU.

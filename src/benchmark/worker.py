@@ -56,7 +56,7 @@ def run_worker(framework: str, circuit: str, nr_of_qubits: int, dtype: str, devi
 
     start = time.perf_counter()
     quantum_circuit = create_circuit(nr_of_qubits)
-    build_s = time.perf_counter() - start # build time includes circuit creation and compilation
+    build_s = time.perf_counter() - start # build time includes circuit creation only
     rss_before_mib = peak_rss_mib()
 
     start = time.perf_counter()

@@ -1,0 +1,17 @@
+framework,device,precision,circuit,factor_per_qubit
+cuda_q,cpu,complex128,bell,2.183668538271686
+cuda_q,cpu,complex128,ghz,2.1759108026271017
+cuda_q,gpu,complex128,bell,2.0228371241550076
+cuda_q,gpu,complex128,ghz,1.9504401148529462
+cuda_q,gpu,complex64,bell,1.740882116191656
+cuda_q,gpu,complex64,ghz,1.6560819508812061
+qiskit_aer,cpu,complex128,bell,2.1093050383881984
+qiskit_aer,cpu,complex128,ghz,2.1074952137625322
+qiskit_aer,cpu,complex64,bell,2.1232164472623016
+qiskit_aer,cpu,complex64,ghz,2.1296208275456885
+qiskit_aer,gpu,complex128,bell,2.255165010852433
+qiskit_aer,gpu,complex128,ghz,2.175908652696331
+qiskit_aer,gpu,complex64,bell,2.235592534551307
+qiskit_aer,gpu,complex64,ghz,2.1308298728886697
+qrisp,cpu,complex64,bell,1.9994680169257768
+qrisp,cpu,complex64,ghz,1.6075244978494754

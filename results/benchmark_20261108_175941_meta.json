@@ -1,0 +1,67 @@
+{
+  "started": "2026-11-08T17:59:41.149859",
+  "git_commit": "4ecd9306848f5f050c406281d7631255038363cc",
+  "platform": "Linux-6.6.87.2-microsoft-standard-WSL2-x86_64-with-glibc2.43",
+  "python": "3.13.18",
+  "cpu": "AMD Ryzen 9 9950X3D 16-Core Processor",
+  "ram_total": "64608344 kB",
+  "gpu": "NVIDIA GeForce RTX 5090, 32607 MiB, 610.88",
+  "circuits": [
+    "bell",
+    "ghz"
+  ],
+  "qubits": [
+    2,
+    4,
+    8,
+    12,
+    16,
+    20,
+    22,
+    24,
+    26
+  ],
+  "repetitions": 5,
+  "timeout_s": 1800,
+  "cpu_threads": 1,
+  "configs": {
+    "qiskit_aer": [
+      [
+        "cpu",
+        "complex64"
+      ],
+      [
+        "cpu",
+        "complex128"
+      ],
+      [
+        "gpu",
+        "complex64"
+      ],
+      [
+        "gpu",
+        "complex128"
+      ]
+    ],
+    "qrisp": [
+      [
+        "cpu",
+        "complex64"
+      ]
+    ],
+    "cuda_q": [
+      [
+        "cpu",
+        "complex128"
+      ],
+      [
+        "gpu",
+        "complex64"
+      ],
+      [
+        "gpu",
+        "complex128"
+      ]
+    ]
+  }
+}

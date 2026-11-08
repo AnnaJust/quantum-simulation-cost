@@ -1,16 +1,13 @@
 import numpy as np
-
+from qrisp import QuantumVariable
 from .bell import create_bell
 from .ghz import create_ghz
 
+CIRCUITS = {
+    "bell": create_bell,
+    "ghz": create_ghz,
+}
 
-def simulate(circuit_name: str, nr_of_qubits: int) -> np.ndarray:
-
-    if circuit_name == "bell":
-        qv = create_bell(nr_of_qubits)
-    elif circuit_name == "ghz":
-        qv = create_ghz(nr_of_qubits)
-    else:
-        raise ValueError(f"Unknown circuit: {circuit_name}")
-
-    return np.asarray(qv.qs.statevector(return_type="array")).flatten() # wbudowana ścieżka symulacji, nie jest identycznie skonfigurowanym silnikiem
+# The Qrisp simulator is always CPU and complex64, so dtype and device are accepted only to keep the interface identical to the other frameworks
+def simulate(qv: QuantumVariable, dtype: str, device: str) -> np.ndarray:
+    return np.asarray(qv.qs.statevector(return_type="array")).flatten()

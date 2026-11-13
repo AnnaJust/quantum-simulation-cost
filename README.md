@@ -114,5 +114,3 @@ RUN_GPU_TESTS=1 .venv-cudaq/bin/python -m pytest tests/test_layers.py -q
 ```bash
 bash scripts/check_threads.sh 2>&1 | tee results/diagnostics/check_threads.log
 ```
-
-In the stored check, every CPU configuration used 99–100% of one core. Without the limit Qrisp and CUDA-Q used about 27–28 cores; CUDA-Q was then about 12× faster, Qrisp was not faster.

@@ -3,10 +3,12 @@ from qiskit import QuantumCircuit
 from qiskit_aer import AerSimulator
 from .bell import create_bell
 from .ghz import create_ghz
+from .layers import create_layers
 
 CIRCUITS = {
     "bell": create_bell,
     "ghz": create_ghz,
+    "layers": create_layers,
 }
 
 DEVICES = {

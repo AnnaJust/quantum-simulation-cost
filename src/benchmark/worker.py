@@ -1,4 +1,5 @@
 import argparse
+from html import parser
 import importlib
 import json
 import resource
@@ -7,7 +8,7 @@ import numpy as np
 from importlib.metadata import PackageNotFoundError, version
 
 from src.config import (
-    BYTES_PER_AMPLITUDE, CIRCUITS, DEVICES, DTYPES, FIDELITY_TOLERANCE, MODULES, PACKAGES, WARMUP_QUBITS,
+    BYTES_PER_AMPLITUDE, CIRCUITS, DEVICES, DTYPES, FIDELITY_TOLERANCE, LAYER_SEED, MODULES, PACKAGES, WARMUP_QUBITS,
 )
 
 
@@ -36,10 +37,17 @@ def fidelity(circuit: str, state: np.ndarray) -> float:
     return float(abs(overlap) ** 2)
 
 
-def validate_state(circuit: str, state: np.ndarray, nr_of_qubits: int, dtype: str) -> float:
+def validate_state(circuit: str, state: np.ndarray, nr_of_qubits: int, dtype: str) -> float | None:
 
     if state.size != 2**nr_of_qubits:
         raise ValueError(f"Invalid statevector size: {state.size}")
+
+    if circuit == "layers":
+        norm = float(np.sum(np.abs(state.astype(np.complex128)) ** 2))
+        if abs(norm - 1) > FIDELITY_TOLERANCE[dtype]:
+            raise ValueError(f"Wrong statevector: squared norm = {norm}")
+        return None
+
     state_fidelity = fidelity(circuit, state)
 
     if state_fidelity < 1 - FIDELITY_TOLERANCE[dtype]:
@@ -47,15 +55,20 @@ def validate_state(circuit: str, state: np.ndarray, nr_of_qubits: int, dtype: st
     
     return state_fidelity
 
+# Build the requested circuit; only the layered circuit takes a depth and a seed.
+def build_circuit(module, circuit: str, nr_of_qubits: int, depth: int, seed: int):
+    if circuit == "layers":
+        return module.CIRCUITS[circuit](nr_of_qubits, depth, seed)
+    return module.CIRCUITS[circuit](nr_of_qubits)
 
-def run_worker(framework: str, circuit: str, nr_of_qubits: int, dtype: str, device: str) -> dict:
+
+def run_worker(framework: str, circuit: str, nr_of_qubits: int, dtype: str, device: str, depth: int = 0, seed: int = LAYER_SEED) -> dict:
 
     module = importlib.import_module(MODULES[framework])
-    create_circuit = module.CIRCUITS[circuit]
-    module.simulate(create_circuit(WARMUP_QUBITS), dtype, device)
+    module.simulate(build_circuit(module, circuit, WARMUP_QUBITS, depth, seed), dtype, device)
 
     start = time.perf_counter()
-    quantum_circuit = create_circuit(nr_of_qubits)
+    quantum_circuit = build_circuit(module, circuit, nr_of_qubits, depth, seed)
     build_s = time.perf_counter() - start # build time includes circuit creation only
     rss_before_mib = peak_rss_mib()
 
@@ -67,7 +80,7 @@ def run_worker(framework: str, circuit: str, nr_of_qubits: int, dtype: str, devi
     state = np.asarray(state).reshape(-1)
     state_fidelity = validate_state(circuit, state, nr_of_qubits, dtype)
 
-    return {
+    result ={
         "framework": framework,
         "framework_version": framework_version(framework),
         "circuit": circuit,
@@ -86,18 +99,24 @@ def run_worker(framework: str, circuit: str, nr_of_qubits: int, dtype: str, devi
         "status": "success",
     }
 
+    if circuit == "layers":
+        result.update({"depth": depth, "seed": seed})
+    return result
+
 
 def main() -> None:
 
     parser = argparse.ArgumentParser()
     parser.add_argument("--framework", required=True, choices=MODULES)
-    parser.add_argument("--circuit", required=True, choices=CIRCUITS)
+    parser.add_argument("--circuit", required=True, choices=[*CIRCUITS, "layers"])
     parser.add_argument("--qubits", required=True, type=int)
     parser.add_argument("--dtype", required=True, choices=DTYPES)
     parser.add_argument("--device", required=True, choices=DEVICES)
+    parser.add_argument("--depth", type=int, default=0)
+    parser.add_argument("--seed", type=int, default=LAYER_SEED)
     args = parser.parse_args()
 
-    print(json.dumps(run_worker(args.framework, args.circuit, args.qubits, args.dtype, args.device)))
+    print(json.dumps(run_worker(args.framework, args.circuit, args.qubits, args.dtype, args.device, args.depth, args.seed)))
 
 
 if __name__ == "__main__":

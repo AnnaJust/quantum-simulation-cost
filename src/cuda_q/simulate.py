@@ -1,11 +1,13 @@
 import cudaq
 import numpy as np
+from .layers import create_layers
 from .bell import create_bell
 from .ghz import create_ghz
 
 CIRCUITS = {
     "bell": create_bell,
     "ghz": create_ghz,
+    "layers": create_layers,
 }
 
 TARGETS = {

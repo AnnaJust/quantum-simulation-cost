@@ -13,3 +13,6 @@ __pycache__/
 
 # Temporary files
 *.log
+
+# Keep the single-thread check result
+!results/diagnostics/*.log

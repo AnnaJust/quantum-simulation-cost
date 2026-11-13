@@ -1,5 +1,4 @@
 import argparse
-from html import parser
 import importlib
 import json
 import resource

@@ -1,0 +1,14 @@
+##### WITH the single-thread limit (as in the benchmark)
+== qiskit_aer cpu complex64, n=22, depth=256
+   real 51.311 s, user 51.075 s, sys 0.228 s, CPU usage 99.00%
+== qiskit_aer cpu complex128, n=22, depth=256
+   real 52.185 s, user 52.070 s, sys 0.112 s, CPU usage 99.00%
+== qrisp cpu complex64, n=22, depth=256
+   real 20.516 s, user 16.487 s, sys 4.041 s, CPU usage 100.00%
+== cuda_q cpu complex128, n=18, depth=64
+   real 104.628 s, user 104.515 s, sys 0.200 s, CPU usage 100.00%
+##### WITHOUT the limit (control; Qiskit Aer is skipped because max_parallel_threads=1 is set in its code)
+== qrisp cpu complex64, n=22, depth=256
+   real 21.949 s, user 553.043 s, sys 62.931 s, CPU usage 2807.00%
+== cuda_q cpu complex128, n=18, depth=16
+   real 2.107 s, user 56.813 s, sys 0.192 s, CPU usage 2706.00%

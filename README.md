@@ -33,11 +33,11 @@ The experiment uses 2, 4, 8, 12, 16, 20, 22, 24 and 26 qubits (`QUBITS` in `src/
 
 Each layer applies `ry` and `rz` rotations with random angles to every qubit, followed by CNOTs on neighbouring pairs: (0,1), (2,3), ... in even layers and (1,2), (3,4), ... in odd layers (`src/layers.py`). The angles are drawn from a fixed seed, so every framework simulates exactly the same circuit, and the output is a dense state with no simple structure.
 
-The experiment uses 18 and 22 qubits and 0, 1, 4, 16 and 64 layers (`LAYER_QUBITS`, `LAYER_DEPTHS`, `LAYER_SEED` in `src/config.py`), 400 runs in total. For every configuration the median time is fitted with
+The experiment uses 18 and 22 qubits and 0, 1, 4, 16 and 64 layers (`LAYER_QUBITS`, `LAYER_DEPTHS`, `LAYER_SEED` in `src/config.py`), 400 runs in total. Every layer contains the same number of gates, and a statevector simulator processes all $2^n$ amplitudes for every gate, so the time is modelled as
 
 $$t(d) = a + b \cdot d,$$
 
-where $d$ is the number of layers, $a$ the fixed cost (setup, allocation, returning the statevector), $b$ the cost of one layer, and $d^* = a/b$ the depth at which both costs are equal.
+where $d$ is the number of layers. From the median times, $a = t(0)$ is the fixed cost (setup, allocation, returning the statevector), $b = (t(64) - t(0))/64$ the average cost of one layer, and $d^* = a/b$ the depth at which both costs are equal.
 
 In the stored run (`results/layers/benchmark_layers_20261112_232429.csv`), 20 runs (Qrisp and CUDA-Q GPU, complex64, 22 qubits, 1 and 4 layers) were first rejected by a too strict norm check computed in single precision. After the check was fixed, only these runs were repeated on the same machine; the original file is kept as `results/layers/benchmark_layers_20261112_232429_before_rerun.csv`.
 
@@ -94,7 +94,7 @@ Experiment 2 (random layered circuit):
 .venv-qiskit/bin/python -m src.benchmark.plots_layers results/layers/benchmark_layers_XXXX.csv
 ```
 
-Results are saved to `results/layers/benchmark_layers_*.csv`; the second command creates the time-vs-layers plot (`_time.png`), the medians (`_summary.csv`) and the fitted $a$, $b$ and $d^*$ (`_fit.csv`). A single layered run at 22 qubits and 64 layers takes about 36 minutes in CUDA-Q on one CPU thread, so the whole experiment takes about 5 hours.
+Results are saved to `results/layers/benchmark_layers_*.csv`; the second command creates the time-vs-layers plot (`_time.png`), the medians (`_summary.csv`) and $a$, $b$ and $d^*$ (`_fit.csv`). A single layered run at 22 qubits and 64 layers takes about 36 minutes in CUDA-Q on one CPU thread, so the whole experiment takes about 5 hours.
 
 ## Tests
 
